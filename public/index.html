@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aviation Intelligence — Daily Briefing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0d;
+    --paper: #f5f2eb;
+    --accent: #c8441a;
+    --muted: #6b6660;
+    --border: rgba(15,14,13,0.12);
+    --card: #ffffff;
+    --surface: #efece4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── MASTHEAD ─────────────────────────────── */
+  .masthead {
+    border-bottom: 3px solid var(--ink);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background: var(--paper);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .mast-left h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+  .mast-left .edition {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .mast-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .mast-date {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: right;
+  }
+  .mast-date strong { color: var(--ink); font-weight: 500; display: block; font-size: 13px; }
+
+  /* ── NAV TABS ─────────────────────────────── */
+  .nav-tabs {
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    gap: 0;
+    background: var(--paper);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding: 10px 14px;
+    color: var(--muted);
+    cursor: pointer;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    white-space: nowrap;
+    font-family: 'DM Sans', sans-serif;
+    transition: color 0.15s, border-color 0.15s;
+    margin-bottom: -1px;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+
+  /* ── LAYOUT ───────────────────────────────── */
+  .shell {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* ── SIDEBAR ──────────────────────────────── */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background: var(--paper);
+  }
+  .sb-section-title {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .sb-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--muted);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.1s, color 0.1s;
+  }
+  .sb-btn:hover { background: var(--surface); color: var(--ink); }
+  .sb-btn.active { background: var(--ink); color: var(--paper); }
+  .sb-btn .sb-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .dot-all      { background: var(--ink); }
+  .dot-safety   { background: #c8441a; }
+  .dot-latam    { background: #1a7a3a; }
+  .dot-industry { background: #185fa5; }
+  .dot-routes   { background: #7a4a1a; }
+  .dot-tech     { background: #4a1a7a; }
+
+  .history-list { display: flex; flex-direction: column; gap: 4px; }
+  .hist-item {
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--muted);
+    transition: background 0.1s, color 0.1s;
+    border: none;
+    background: none;
+    font-family: 'DM Sans', sans-serif;
+    text-align: left;
+    width: 100%;
+  }
+  .hist-item:hover { background: var(--surface); color: var(--ink); }
+  .hist-item.active { background: var(--surface); color: var(--ink); font-weight: 500; }
+  .hist-item .hist-date { font-size: 11px; color: var(--muted); display: block; }
+
+  /* ── MAIN ─────────────────────────────────── */
+  .main {
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── TOOLBAR ──────────────────────────────── */
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 0 18px;
+    height: 36px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+    transition: background 0.12s;
+  }
+  .btn-primary:hover { background: #a33515; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-sec {
+    background: none;
+    border: 1.5px solid var(--border);
+    padding: 0 14px;
+    height: 36px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    white-space: nowrap;
+    transition: background 0.1s;
+  }
+  .btn-sec:hover { background: var(--surface); }
+  .focus-input {
+    flex: 1;
+    min-width: 180px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 0 12px;
+    height: 36px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--ink);
+    outline: none;
+    border-radius: 6px;
+  }
+  .focus-input:focus { border-color: var(--ink); }
+  .cache-badge {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .cache-badge.show { display: flex; }
+  .cdot { width: 6px; height: 6px; border-radius: 50%; background: #1a7a3a; }
+
+  /* ── STATES ───────────────────────────────── */
+  .state-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    text-align: center;
+    gap: 12px;
+  }
+  .state-icon { font-size: 36px; }
+  @keyframes glide { from{transform:translateX(-16px)} to{transform:translateX(16px)} }
+  .anim-glide { animation: glide 2s ease-in-out infinite alternate; display: inline-block; }
+  .state-center h2 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+  .state-center p { font-size: 13px; color: var(--muted); line-height: 1.7; max-width: 340px; }
+
+  .loading-dots span { animation: blink 1.2s infinite; }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100%{opacity:0.15}40%{opacity:1} }
+
+  /* ── BRIEFING CONTENT ─────────────────────── */
+  .briefing { display: flex; flex-direction: column; gap: 16px; }
+
+  .lead-card {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--card);
+  }
+  .lead-main { padding: 20px; border-right: 1px solid var(--border); }
+  .lead-tag {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-bottom: 10px;
+  }
+  .lead-main h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .lead-summary { font-size: 13px; line-height: 1.75; color: #333; }
+  .editor-note {
+    margin-top: 12px;
+    font-size: 12px;
+    font-style: italic;
+    color: var(--muted);
+    border-left: 2.5px solid var(--accent);
+    padding-left: 10px;
+  }
+  .lead-side {
+    padding: 16px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .side-title {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .side-item { border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+  .side-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .side-cat {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 3px;
+  }
+  .side-item p { font-size: 11px; line-height: 1.65; color: #444; }
+
+  /* ── MARKET BAR ───────────────────────────── */
+  .mkt-bar {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--ink);
+  }
+  .mkt-label {
+    padding: 12px 16px;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(245,242,235,0.4);
+    font-weight: 600;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  .mkt-item {
+    padding: 10px 18px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+  }
+  .mkt-item:last-child { border-right: none; }
+  .mi-name { font-size: 10px; color: rgba(245,242,235,0.45); }
+  .mi-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #f5f2eb;
+  }
+  .mi-chg { font-size: 11px; }
+  .mi-chg.up { color: #6dffaa; }
+  .mi-chg.dn { color: #ff8080; }
+
+  /* ── NEWS SECTION ─────────────────────────── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 8px;
+  }
+  .section-header span {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .section-header .count {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .news-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 0.15s;
+    cursor: default;
+  }
+  .news-card:hover { border-color: rgba(15,14,13,0.25); }
+  .nc-badge {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 3px;
+    align-self: flex-start;
+  }
+  .badge-safety   { background: #FAECE7; color: #712B13; }
+  .badge-latam    { background: #EAF3DE; color: #27500A; }
+  .badge-industry { background: #E6F1FB; color: #0C447C; }
+  .badge-routes   { background: #FAEEDA; color: #633806; }
+  .badge-tech     { background: #EEEDFE; color: #3C3489; }
+  .badge-general  { background: var(--surface); color: var(--muted); }
+  .news-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+  .news-card p { font-size: 12px; line-height: 1.65; color: #3a3a3a; }
+
+  /* ── PAGINATION ───────────────────────────── */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 0;
+  }
+  .pg-btn {
+    width: 32px; height: 32px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.1s;
+  }
+  .pg-btn:hover:not(:disabled) { background: var(--surface); }
+  .pg-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .pg-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .pg-info { font-size: 12px; color: var(--muted); padding: 0 8px; }
+
+  /* ── ERROR ────────────────────────────────── */
+  .err-box {
+    border: 1px solid rgba(200,68,26,0.3);
+    background: rgba(200,68,26,0.05);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .err-box .err-icon { font-size: 20px; flex-shrink: 0; }
+  .err-box h3 { font-size: 14px; font-weight: 500; margin-bottom: 4px; color: var(--accent); }
+  .err-box p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .err-box code { font-size: 11px; background: var(--surface); padding: 1px 5px; border-radius: 3px; font-family: monospace; }
+
+  /* ── FOOTER ───────────────────────────────── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--paper);
+  }
+
+  /* ── RESPONSIVE ───────────────────────────── */
+  @media (max-width: 760px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .lead-card { grid-template-columns: 1fr; }
+    .lead-side { border-top: 1px solid var(--border); }
+    .mkt-bar { flex-wrap: wrap; }
+    .masthead { padding: 12px 16px; }
+    .main { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="mast-left">
+    <h1>✈ Aviation Intelligence</h1>
+    <div class="edition">Daily Industry Briefing · Cruzair</div>
+  </div>
+  <div class="mast-right">
+    <div class="mast-date">
+      <strong id="hdr-date-strong">—</strong>
+      <span>Powered by Claude AI</span>
+    </div>
+  </div>
+</header>
+
+<!-- CATEGORY TABS -->
+<nav class="nav-tabs" id="cat-tabs">
+  <button class="tab active" data-cat="all">All sectors</button>
+  <button class="tab" data-cat="latam">Latin America</button>
+  <button class="tab" data-cat="safety">Safety & regulatory</button>
+  <button class="tab" data-cat="industry">Airlines & industry</button>
+  <button class="tab" data-cat="routes">Routes & networks</button>
+  <button class="tab" data-cat="tech">Technology</button>
+</nav>
+
+<div class="shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div>
+      <div class="sb-section-title">Filter by sector</div>
+      <div style="display:flex;flex-direction:column;gap:2px;" id="sb-cats">
+        <button class="sb-btn active" data-cat="all"><span class="sb-dot dot-all"></span>All sectors</button>
+        <button class="sb-btn" data-cat="latam"><span class="sb-dot dot-latam"></span>Latin America</button>
+        <button class="sb-btn" data-cat="safety"><span class="sb-dot dot-safety"></span>Safety & regulatory</button>
+        <button class="sb-btn" data-cat="industry"><span class="sb-dot dot-industry"></span>Airlines & industry</button>
+        <button class="sb-btn" data-cat="routes"><span class="sb-dot dot-routes"></span>Routes & networks</button>
+        <button class="sb-btn" data-cat="tech"><span class="sb-dot dot-tech"></span>Technology</button>
+      </div>
+    </div>
+    <div>
+      <div class="sb-section-title">Briefing history</div>
+      <div class="history-list" id="history-list">
+        <span style="font-size:12px;color:var(--muted);padding:4px 10px;">No history yet</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <button class="btn-primary" id="btn-gen" onclick="generateBriefing()">
+        ⟳ Generate today's briefing
+      </button>
+      <input class="focus-input" id="focus-topic" type="text"
+             placeholder="Focus: Bolivia, A320, jet fuel, low-cost…"
+             onkeydown="if(event.key==='Enter') generateWithFocus()">
+      <button class="btn-sec" onclick="generateWithFocus()">Deep dive ↗</button>
+      <span class="cache-badge" id="cache-badge"><span class="cdot"></span> Loaded from cache</span>
+    </div>
+
+    <!-- DYNAMIC OUTPUT -->
+    <div id="output">
+      <div class="state-center">
+        <div class="state-icon"><span class="anim-glide">✈</span></div>
+        <h2>Ready for takeoff</h2>
+        <p>Press <strong>Generate today's briefing</strong> to get a fresh AI-powered summary of global aviation news, with special focus on Latin America.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <span>Aviation Intelligence · <strong>Cruzair Daily Briefing</strong></span>
+  <span id="footer-ts">Not yet generated</span>
+</footer>
+
+<script>
+/* ────────── STATE ────────── */
+const CACHE_PREFIX = 'avi_v3_';
+const HISTORY_KEY  = 'avi_history';
+let currentCat   = 'all';
+let currentPage  = 1;
+let allNewsItems = [];
+const ITEMS_PER_PAGE = 6;
+
+/* ────────── UTILS ────────── */
+function todayIso() { return new Date().toISOString().split('T')[0]; }
+function todayLong() {
+  return new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+function fmtDate(iso) {
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+}
+
+/* ────────── INIT ────────── */
+document.getElementById('hdr-date-strong').textContent = todayLong();
+
+(function init() {
+  loadHistory();
+  const cached = getCache(todayIso());
+  if (cached) {
+    renderBriefing(cached, true);
+  }
+})();
+
+/* ────────── CACHE ────────── */
+function getCache(dateIso) {
+  try { const r = localStorage.getItem(CACHE_PREFIX + dateIso); return r ? JSON.parse(r) : null; }
+  catch(e) { return null; }
+}
+function setCache(dateIso, data) {
+  try { localStorage.setItem(CACHE_PREFIX + dateIso, JSON.stringify(data)); } catch(e) {}
+}
+
+/* ────────── HISTORY ────────── */
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch(e) { return []; }
+}
+function addToHistory(dateIso) {
+  const h = getHistory().filter(d => d !== dateIso);
+  h.unshift(dateIso);
+  const trimmed = h.slice(0, 14);
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed)); } catch(e) {}
+  loadHistory();
+}
+function loadHistory() {
+  const h = getHistory();
+  const el = document.getElementById('history-list');
+  if (!h.length) {
+    el.innerHTML = '<span style="font-size:12px;color:var(--muted);padding:4px 10px;">No history yet</span>';
+    return;
+  }
+  el.innerHTML = h.map(d => `
+    <button class="hist-item ${d === todayIso() ? 'active' : ''}" onclick="loadHistoricalBriefing('${d}')">
+      ${d === todayIso() ? 'Today' : fmtDate(d)}
+      <span class="hist-date">${d}</span>
+    </button>`).join('');
+}
+function loadHistoricalBriefing(dateIso) {
+  const data = getCache(dateIso);
+  if (data) renderBriefing(data, true);
+}
+
+/* ────────── GENERATE ────────── */
+async function generateBriefing(focus) {
+  const btn = document.getElementById('btn-gen');
+  btn.disabled = true;
+  document.getElementById('cache-badge').classList.remove('show');
+
+  document.getElementById('output').innerHTML = `
+    <div class="state-center">
+      <div class="state-icon anim-glide">✈</div>
+      <h2>Compiling intelligence<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></h2>
+      <p>Claude is scanning global aviation developments for ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric'})}…</p>
+    </div>`;
+
+  const focusNote = focus ? `\n\nSpecial editorial focus: "${focus}". Give extra depth to this topic.` : '';
+  const today = todayLong();
+
+  const prompt = `You are a senior aviation industry analyst producing a daily intelligence briefing for an airline team. Today is ${today}.${focusNote}
+
+Respond ONLY with valid JSON — no markdown, no backticks, no explanation:
+{
+  "generatedAt": "${todayIso()}",
+  "headline": "Specific, punchy lead headline, max 12 words",
+  "leadCategory": "safety|latam|industry|routes|tech|general",
+  "leadSummary": "3-4 sentences. Cite specific airlines, aircraft types, routes, regions, numbers where plausible.",
+  "sidebarItems": [
+    {"category":"latam|safety|industry|routes|tech|general","label":"Short label","text":"2 sharp sentences."},
+    {"category":"...","label":"...","text":"..."},
+    {"category":"...","label":"...","text":"..."}
+  ],
+  "newsItems": [
+    {"category":"safety|latam|industry|routes|tech|general","label":"Category label","title":"Title max 9 words","summary":"2-3 sentences with specific details, operators, numbers."},
+    ...exactly 9 items, varied categories, minimum 3 about Latin America or Bolivia...
+  ],
+  "marketData": [
+    {"name":"Jet-A (USD/gal)","value":"2.42","change":"+1.2%","up":true},
+    {"name":"Brent crude","value":"$82.10","change":"-0.4%","up":false},
+    {"name":"Avg load factor","value":"84.1%","change":"+0.8pp","up":true},
+    {"name":"SAF premium","value":"320%","change":"-5%","up":false}
+  ],
+  "editorNote": "One sentence: the key theme analysts should watch today."
+}`;
+
+  try {
+    const res = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'API error ' + res.status); }
+    const data = await res.json();
+    const raw  = data.content.map(b => b.text || '').join('').replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(raw);
+
+    setCache(todayIso(), parsed);
+    addToHistory(todayIso());
+    renderBriefing(parsed, false);
+  } catch(e) {
+    btn.disabled = false;
+    document.getElementById('output').innerHTML = `
+      <div class="err-box">
+        <div class="err-icon">⚠️</div>
+        <div>
+          <h3>Generation failed</h3>
+          <p>Error: <code>${e.message}</code></p>
+          <p style="margin-top:6px">Make sure the <code>ANTHROPIC_API_KEY</code> environment variable is set in Vercel, and the <code>/api/claude</code> route is deployed correctly.</p>
+        </div>
+      </div>`;
+  }
+}
+
+function generateWithFocus() {
+  const t = document.getElementById('focus-topic').value.trim();
+  generateBriefing(t || null);
+}
+
+/* ────────── RENDER ────────── */
+function renderBriefing(d, fromCache) {
+  document.getElementById('btn-gen').disabled = false;
+  if (fromCache) document.getElementById('cache-badge').classList.add('show');
+
+  allNewsItems = d.newsItems || [];
+  currentPage  = 1;
+  currentCat   = 'all';
+
+  syncCatUI('all');
+  document.getElementById('output').innerHTML = buildBriefingHTML(d);
+  attachCatListeners();
+  renderNewsPage();
+
+  document.getElementById('footer-ts').textContent =
+    (fromCache ? 'Loaded from cache · ' : 'Generated · ') + new Date().toLocaleTimeString();
+}
+
+function buildBriefingHTML(d) {
+  const sideHTML = (d.sidebarItems||[]).map(s => `
+    <div class="side-item">
+      <div class="side-cat">${s.label}</div>
+      <p>${s.text}</p>
+    </div>`).join('');
+
+  const mktHTML = (d.marketData||[]).map(m => `
+    <div class="mkt-item">
+      <span class="mi-name">${m.name}</span>
+      <span class="mi-val">${m.value}</span>
+      <span class="mi-chg ${m.up?'up':'dn'}">${m.change}</span>
+    </div>`).join('');
+
+  return `
+    <div class="briefing">
+      <div class="lead-card">
+        <div class="lead-main">
+          <span class="lead-tag">Lead · ${(d.leadCategory||'today').toUpperCase()}</span>
+          <h2>${d.headline}</h2>
+          <p class="lead-summary">${d.leadSummary}</p>
+          ${d.editorNote ? `<p class="editor-note">${d.editorNote}</p>` : ''}
+        </div>
+        <div class="lead-side">
+          <div class="side-title">Also today</div>
+          ${sideHTML}
+        </div>
+      </div>
+
+      <div class="mkt-bar">
+        <span class="mkt-label">Markets</span>
+        ${mktHTML}
+      </div>
+
+      <div>
+        <div class="section-header">
+          <span>Industry coverage</span>
+          <span class="count" id="news-count"></span>
+        </div>
+        <div id="news-grid" class="news-grid" style="margin-top:12px"></div>
+        <div id="pagination" class="pagination" style="margin-top:12px"></div>
+      </div>
+    </div>`;
+}
+
+/* ────────── NEWS PAGINATION ────────── */
+function getFilteredItems() {
+  if (currentCat === 'all') return allNewsItems;
+  return allNewsItems.filter(n => n.category === currentCat);
+}
+
+function renderNewsPage() {
+  const items    = getFilteredItems();
+  const total    = items.length;
+  const pages    = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
+  currentPage    = Math.min(currentPage, pages);
+  const start    = (currentPage - 1) * ITEMS_PER_PAGE;
+  const pageItems = items.slice(start, start + ITEMS_PER_PAGE);
+
+  const countEl = document.getElementById('news-count');
+  const gridEl  = document.getElementById('news-grid');
+  const pgEl    = document.getElementById('pagination');
+  if (!gridEl) return;
+
+  countEl.textContent = total + ' stories' + (currentCat !== 'all' ? ' · ' + currentCat : '');
+
+  function badgeClass(c) {
+    return {'safety':'badge-safety','latam':'badge-latam','industry':'badge-industry',
+            'routes':'badge-routes','tech':'badge-tech','general':'badge-general'}[c]||'badge-general';
+  }
+
+  gridEl.innerHTML = pageItems.length
+    ? pageItems.map(n => `
+        <div class="news-card">
+          <span class="nc-badge ${badgeClass(n.category)}">${n.label}</span>
+          <h3>${n.title}</h3>
+          <p>${n.summary}</p>
+        </div>`).join('')
+    : `<p style="color:var(--muted);font-size:13px;padding:16px 0">No stories in this category for today's briefing.</p>`;
+
+  if (pages <= 1) { pgEl.innerHTML = ''; return; }
+
+  let pgHTML = `<button class="pg-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+  for (let i = 1; i <= pages; i++) {
+    pgHTML += `<button class="pg-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  pgHTML += `<button class="pg-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>`;
+  pgHTML += `<span class="pg-info">Page ${currentPage} of ${pages}</span>`;
+  pgEl.innerHTML = pgHTML;
+}
+
+function goPage(n) {
+  currentPage = n;
+  renderNewsPage();
+  document.querySelector('.section-header')?.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+/* ────────── CATEGORY FILTER ────────── */
+function syncCatUI(cat) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+  document.querySelectorAll('#sb-cats .sb-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+}
+
+function attachCatListeners() {
+  document.querySelectorAll('.tab, #sb-cats .sb-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentCat  = btn.dataset.cat;
+      currentPage = 1;
+      syncCatUI(currentCat);
+      renderNewsPage();
+    });
+  });
+}
+</script>
+</body>
+</html>
